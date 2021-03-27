@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('../partials/head.ejs') -%>
+  </head>
+    <body>
+      <section class="hero is-danger is-small">
+        <%- include('../partials/banner.ejs') -%>
+      </section>
+      <div class="box cta">
+        <p class="has-text-centered">Tudo para seu pet</p>
+      </div>
+      
+      <section class="container">
+        <input type="hidden" id="shippingHost" value="<%= shipping.host %>" />
+        <input type="hidden" id="shippingPort" value="<%= shipping.port %>" />
+        <div class="columns pets">
+          <% products.forEach(product => { %>
+            <div class="column is-4">
+              <div class="card is-shady">
+                <div class="card-image">
+                  <figure class="image is-4by3">
+                    <img
+                      src="/<%= product.photo %>"
+                      alt="<%= product.name %>"
+                      class="modal-button"
+                    />
+                  </figure>
+                </div>
+                <div class="card-content">
+                  <div class="content product" data-id="<%= product.id %>">
+                    <div class="product-meta">
+                      <p class="is-size-4">R$<%= product.price %></p>
+                      <p class="is-size-6">Disponível em estoque: <%= (parseInt(Math.random() * 10 + 1)) %></p>
+                      <h4 class="is-size-3 title"><%= product.name %></h4>
+                      <p class="subtitle"><%= product.description %></p>
+                    </div>
+                    <div class="field has-addons">
+                      <div class="control">
+                        <input class="input" type="text" placeholder="Digite o CEP" />
+                      </div>
+                      <div class="control">
+                        <a class="button button-shipping is-danger" data-id="<%= product.id %>"> Calcular Frete </a>
+                      </div>
+                    </div>
+                    <button class="button button-buy is-info is-fullwidth">Comprar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+
+      <footer class="footer has-text-centered">
+        <%- include('../partials/footer.ejs') -%>
+      </footer>
+
+      <script src="https://unpkg.com/bulma-modal-fx/dist/js/modal-fx.min.js"></script>
+      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.9.1/js/OverlayScrollbars.min.js"></script>
+      <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+      <script>
+        function calculateShipping(id, zipcode) {
+          const shippinHost = document.querySelector('#shippingHost').value
+          const shippinPort = document.querySelector('#shippingPort').value
+
+          fetch(`http://${shippinHost}:${shippinPort}/shipping/`+ zipcode)
+            .then(data => {
+              if (data.ok) {
+                return data.json();
+              }
+              throw data.statusText;
+            })
+            .then(json => {
+              swal('Frete', `O frete é: R$ ${json.shippingRate}`, 'success');
+            })
+        }
+
+        document.querySelectorAll('.button-shipping').forEach(btn => {
+          btn.addEventListener('click', e => {
+            const id = e.target.getAttribute('data-id')
+            const zipcode = document.querySelector(
+              `.product[data-id="${id}"] input`
+            ).value;
+            calculateShipping(id, zipcode);
+          })
+        })
+        
+        document.querySelectorAll('.button-buy').forEach(btn => {
+          btn.addEventListener('click', e => {
+            swal('Compra de Produto', 'Sua compra foi realizada com sucesso', 'success')
+          })
+        })
+      </script>
+    </body>
+</html>
