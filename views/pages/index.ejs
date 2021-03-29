@@ -65,7 +65,7 @@
           const shippinHost = document.querySelector('#shippingHost').value
           const shippinPort = document.querySelector('#shippingPort').value
 
-          fetch(`http://${shippinHost}:${shippinPort}/shipping/`+ zipcode)
+          fetch(`http://${shippinHost}:${shippinPort}/shipping/${zipcode}`)
             .then(data => {
               if (data.ok) {
                 return data.json();
