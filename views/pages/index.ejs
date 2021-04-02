@@ -14,6 +14,8 @@
       <section class="container">
         <input type="hidden" id="shippingHost" value="<%= shipping.host %>" />
         <input type="hidden" id="shippingPort" value="<%= shipping.port %>" />
+        <input type="hidden" id="commentsHost" value="<%= comments.host %>" />
+        <input type="hidden" id="commentsPort" value="<%= comments.port %>" />
         <div class="columns pets">
           <% products.forEach(product => { %>
             <div class="column is-4">
@@ -44,6 +46,9 @@
                       </div>
                     </div>
                     <button class="button button-buy is-info is-fullwidth">Comprar</button>
+                    <button class="button button-comments is-warning is-active is-fullwidth my-1" data-id="<%= product.id %>">
+                      Ver comentários
+                    </button>
                   </div>
                 </div>
               </div>
@@ -59,20 +64,41 @@
       <script src="https://unpkg.com/bulma-modal-fx/dist/js/modal-fx.min.js"></script>
       <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.9.1/js/OverlayScrollbars.min.js"></script>
-      <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
       <script>
         function calculateShipping(id, zipcode) {
-          const shippinHost = document.querySelector('#shippingHost').value
-          const shippinPort = document.querySelector('#shippingPort').value
+          const shippingHost = document.querySelector('#shippingHost').value
+          const shippingPort = document.querySelector('#shippingPort').value
 
-          fetch(`http://${shippinHost}:${shippinPort}/shipping/${zipcode}`)
+          fetch(`http://${shippingHost}:${shippingPort}/shipping/${zipcode}`)
             .then(data => {
               if (data.ok) {
                 return data.json()
               }
               throw data.statusText
             })
-            .then(json => swal('Frete', `O frete é: R$ ${json.shippingRate}`, 'success'))
+            .then(json => Swal.fire({title: 'Frete', text: `O frete é: R$ ${json.shippingRate}`, icon: 'success' }))
+            .catch(err => console.log(err))
+        }
+
+        function getComments(id) {
+          const commentsHost = document.querySelector('#commentsHost').value
+          const commentsPort = document.querySelector('#commentsPort').value
+
+          fetch(`http://${commentsHost}:${commentsPort}/comments/products/${id}`)
+            .then(data => {
+              if (data.ok) {
+                return data.json()
+              }
+              throw data.statusText
+            })
+            .then(json => {
+              let content = ''
+              for(let i = 0, ii = json.length; i < ii; i++) {
+                content += '<p>'+ json[i].comment +'&nbsp;<b>('+ json[i].personName +')</b></p>' 
+              }
+              Swal.fire({title: 'Comentários', html: content, width: 700 })
+            })
             .catch(err => console.log(err))
         }
 
@@ -85,7 +111,16 @@
         })
         
         document.querySelectorAll('.button-buy').forEach(btn => {
-          btn.addEventListener('click', evt => swal('Compra de Produto', 'Sua compra foi realizada com sucesso', 'success'))
+          btn.addEventListener('click', evt => { 
+            Swal.fire({ title: 'Compra de Produto', text: 'Sua compra foi realizada com sucesso', icon: 'success'})
+          })
+        })
+
+        document.querySelectorAll('.button-comments').forEach(btn => {
+          btn.addEventListener('click', evt => {
+            const id = evt.target.getAttribute('data-id')
+            getComments(id)
+          })
         })
       </script>
     </body>
