@@ -77,7 +77,7 @@
               }
               throw data.statusText
             })
-            .then(json => Swal.fire({title: 'Frete', text: `O frete é: R$ ${json.shippingRate}`, icon: 'success' }))
+            .then(shipping => Swal.fire({ title: 'Frete', text: `Valor do frete R$ ${shipping.shippingRate}` }))
             .catch(err => console.log(err))
         }
 
@@ -92,12 +92,12 @@
               }
               throw data.statusText
             })
-            .then(json => {
+            .then(comments => {
               let content = ''
-              for(let i = 0, ii = json.length; i < ii; i++) {
-                content += '<p>'+ json[i].comment +'&nbsp;<b>('+ json[i].personName +')</b></p>' 
+              for(let i = 0, ii = comments.length; i < ii; i++) {
+                content += '<p>'+ comments[i].comment +'&nbsp;<b>('+ comments[i].personName +')</b></p>' 
               }
-              Swal.fire({title: 'Comentários', html: content, width: 700 })
+              Swal.fire({ title: 'Comentários', html: content, width: 700 })
             })
             .catch(err => console.log(err))
         }
@@ -112,7 +112,7 @@
         
         document.querySelectorAll('.button-buy').forEach(btn => {
           btn.addEventListener('click', evt => { 
-            Swal.fire({ title: 'Compra de Produto', text: 'Sua compra foi realizada com sucesso', icon: 'success'})
+            Swal.fire({ title: 'Compra de Produto', text: 'Sua compra foi realizada com sucesso', icon: 'success' })
           })
         })
 
